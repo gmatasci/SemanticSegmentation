@@ -127,19 +127,6 @@ for file_name in os.listdir(gt_dir):
     # Extract patches with a given stride (output is a 5D tensor: nr_patches_in_height x nr_patches_in_width x patch_height x patch_width x channels)
     patches = np.squeeze(view_as_windows(full_data_padded, window_shape=(patch_sz, patch_sz, depth), step=stride))
 
-    # TODO TODEL
-    # Check reassembled patches
-    ##-------------------------------------------
-    # height_padded = (stride * np.ceil(height / stride)).astype(np.int)
-    # width_padded = (stride * np.ceil(width / stride)).astype(np.int)
-    # image_full = np.empty([height_padded, width_padded, 3])  # dimensions from which patches have been created (_padded) minus the clipped border on each side (= overlap)
-    # for i_h, h in enumerate(range(0, height_padded, stride)):
-    #     for i_w, w in enumerate(range(0, width_padded, stride)):
-    #         image_full[h:h + stride, w:w + stride, :] = np.moveaxis(patches[i_h, i_w, :, :, [0, 1, 3]], 0, -1).astype(np.uint8)
-    # plt.figure()
-    # plt.imshow(image_full)
-    ##-------------------------------------------
-
     # Save full GT image for each validation area with class labels (to be reused by evaluate_UNet())
     if int(area) in val_ID:
         dir_to_save = val_dir
@@ -175,60 +162,3 @@ for file_name in os.listdir(gt_dir):
     print('area %s: success' % area)
 
 print('Total ' + toc(start_time))
-
-
-
-# TODO TODEL --------------------------------------
-
-
-# def _pad_img(img, window_size, subdivisions):
-#     """
-#     Add borders to img for a "valid" border pattern according to "window_size" and
-#     "subdivisions".
-#     Image is an np array of shape (x, y, nb_channels).
-#     """
-#     aug = int(round(window_size * (1 - 1.0 / subdivisions)))
-#     more_borders = ((aug, aug), (aug, aug), (0, 0))
-#     ret = np.pad(img, pad_width=more_borders, mode='reflect')
-#     # gc.collect()
-#
-#     # For demo purpose, let's look once at the window:
-#     plt.imshow(ret)
-#     plt.title("Padded Image for Using Tiled Prediction Patches\n"
-#               "(notice the reflection effect on the padded borders)")
-#     plt.show()
-#
-#     return ret
-#
-# img_padded = _pad_img(img, 65, overlap)
-#
-# def paint_border_overlap(full_imgs, patch_h, patch_w, stride_h, stride_w):
-#     img_h = full_imgs.shape[0]  # height of the full image
-#     img_w = full_imgs.shape[1]  # width of the full image
-#     leftover_h = (img_h - patch_h) % stride_h  # leftover on the h dim
-#     leftover_w = (img_w - patch_w) % stride_w  # leftover on the w dim
-#     if (leftover_h != 0):  # change dimension of img_h
-#         print("the side H is not compatible with the selected stride of " + str(stride_h))
-#         print("img_h " + str(img_h) + ", patch_h " + str(patch_h) + ", stride_h " + str(stride_h))
-#         print("(img_h - patch_h) MOD stride_h: " + str(leftover_h))
-#         print("So the H dim will be padded with additional " + str(stride_h - leftover_h) + " pixels")
-#         tmp_full_imgs = np.zeros((full_imgs.shape[0], full_imgs.shape[1], img_h + (stride_h - leftover_h), img_w))
-#         tmp_full_imgs[0:full_imgs.shape[0], 0:full_imgs.shape[1], 0:img_h, 0:img_w] = full_imgs
-#         full_imgs = tmp_full_imgs
-#     if (leftover_w != 0):  # change dimension of img_w
-#         print("the side W is not compatible with the selected stride of " + str(stride_w))
-#         print("img_w " + str(img_w) + ", patch_w " + str(patch_w) + ", stride_w " + str(stride_w))
-#         print("(img_w - patch_w) MOD stride_w: " + str(leftover_w))
-#         print("So the W dim will be padded with additional " + str(stride_w - leftover_w) + " pixels")
-#         tmp_full_imgs = np.zeros(
-#             (full_imgs.shape[0], full_imgs.shape[1], full_imgs.shape[2], img_w + (stride_w - leftover_w))
-#         )
-#         tmp_full_imgs[0:full_imgs.shape[0], 0:full_imgs.shape[1], 0:full_imgs.shape[2], 0:img_w] = full_imgs
-#         full_imgs = tmp_full_imgs
-#     print("new full images shape: \n" + str(full_imgs.shape))
-#     return full_imgs
-#
-
-
-# ---------------------------
-

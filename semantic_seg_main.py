@@ -1,7 +1,7 @@
 """
 Project Name: CNN for semantic segmentation
 Authors: Giona Matasci (giona.matasci@gmail.com)
-File Name: SemanticSeg_UNet_main.py
+File Name: semantic_seg_main.py
 Objective: Semantic segmentation (image classification) using UNet architechture on data from the ISPRS 2D Semantic Labeling Contest: http://www2.isprs.org/commissions/comm3/wg4/2d-sem-label-vaihingen.html
 """
 
@@ -65,8 +65,8 @@ from utils import*
 
 PARAMS = {}
 
-# PARAMS['exp_name'] = r'basic_UNet_model'  # Experiment name, to create a separate folder with results, figures, Tensorboard logs, etc.
-PARAMS['exp_name'] = r'debugging'  # to avoid overwriting files in experiment folders
+# PARAMS['exp_name'] = 'basic_UNet_model'  # Experiment name, to create a separate folder with results, figures, Tensorboard logs, etc.
+PARAMS['exp_name'] = 'debugging'  # to avoid overwriting files in experiment folders
 
 PARAMS['run_training'] = True   # if True trains model, if False loads saved model and goes to evalaution on test set
 # PARAMS['run_training'] = False
@@ -366,11 +366,6 @@ data_gen_args_X_trn = dict(horizontal_flip=PARAMS['flips'],
                            featurewise_center=PARAMS['normaliz'],
                            featurewise_std_normalization=PARAMS['normaliz'])
 
-# TODO TODEL Y-specific arguments, not needed as X_datagen_trn will consider only X as the images to augment
-# Y_datagen_trn = ImageDataGenerator(**data_gen_args_Y_trn)
-# data_gen_args_Y_trn = dict(horizontal_flip=PARAMS['flips'],
-#                            vertical_flip=PARAMS['flips'])
-
 X_datagen_trn = ImageDataGenerator(**data_gen_args_X_trn)
 
 # List all training image patch names sorted by area then by patch number
@@ -508,104 +503,3 @@ with open(os.path.join(PARAMS['dirs']['res'], res_filename), 'w') as fp:
     json.dump(RES, fp)
 
 print('Total ' + toc(start_time))
-
-
-
-## TODO TODEL -----------------------
-
-# Non-overlapping patches:
-# height_padded = PARAMS['patch_size']*(np.ceil(height / PARAMS['patch_size'])).astype(np.int)
-# width_padded = PARAMS['patch_size']*(np.ceil(width / PARAMS['patch_size'])).astype(np.int)
-# Y_tst_pred_map_full = np.empty([height_padded, width_padded])  # to accomodate patches that would go over the border of the image
-# p = 0
-# for h in range(0, height_padded, PARAMS['patch_size']):
-#     for w in range(0, width_padded, PARAMS['patch_size']):
-#         Y_tst_pred_map_full[h:h+PARAMS['patch_size'], w:w+PARAMS['patch_size']] = Y_tst_pred_map_3D_area[p, :, :]
-#         p += 1
-# Y_tst_pred_map_full = Y_tst_pred_map_full[:height, :width]  # to reclip it back to its original size
-
-# Overlapping patches:
-# stride = PARAMS['patch_size_out']
-# height, width = gt.shape
-# height_padded = (stride * (np.ceil((height - PARAMS['patch_size']) / stride)) + PARAMS['patch_size_out']).astype(np.int)
-# width_padded = (stride * (np.ceil((width - PARAMS['patch_size']) / stride)) + PARAMS['patch_size']).astype(np.int)
-
-# height_padded = (stride * (np.ceil((height-PARAMS['patch_size'])/stride)) + stride).astype(np.int)
-# width_padded = (stride * (np.ceil((width-PARAMS['patch_size'])/stride)) + stride).astype(np.int)
-
-# ---------------------------
-
-# padding_ht = height_padded - height
-# padding_wt = width_padded - width
-# if padding_ht < overlap or padding_wt < overlap:
-#     print('Overlap = %g: padding_ht %g, padding_wt = %g', overlap, padding_ht, padding_wt)
-#     break
-# offset_ht = np.floor(padding_ht / 2)
-# offset_wt = np.floor(padding_wt / 2)
-#
-# gt_padded = np.zeros((height_padded, width_padded))  # use ones to have a valid class for padding (Impervious surfaces)
-# gt_padded[offset_ht:offset_ht+gt.shape[0], offset_wt:offset_wt+gt.shape[1]] = gt
-
-# ---------------------------
-
-# if PARAMS['nr_conv_3x3'] > 0:
-#     height_clipped = height_padded - overlap
-#     width_clipped = width_padded - overlap
-#     Y_tst_pred_map_3D_area_clipped = Y_tst_pred_map_3D_area[:, PARAMS['nr_conv_3x3']:-PARAMS['nr_conv_3x3'], PARAMS['nr_conv_3x3']:-PARAMS['nr_conv_3x3']]
-#     gt_clipped = gt_padded[PARAMS['nr_conv_3x3']:-PARAMS['nr_conv_3x3'], PARAMS['nr_conv_3x3']:-PARAMS['nr_conv_3x3']]
-#
-# elif PARAMS['nr_conv_3x3'] == 0:
-#     height_clipped = height_padded
-#     width_clipped = width_padded
-#     Y_tst_pred_map_3D_area_clipped = Y_tst_pred_map_3D_area
-#     gt_clipped = gt_padded
-
-
-# ---------------------------------------------------------
-
-# cannot use flow_from_directory() because then GT is a 2D tensor (as grey scale PNG image,
-# only format accepted as we're using the ImageDataGenerator class) and we would need to have the one-hot transform in Keras
-#  train_generator_X = X_datagen_trn.flow_from_directory(os.path.join(PARAMS['dirs']['data'], "trn", "X"),
-#     target_size=(PARAMS['patch_size'], PARAMS['patch_size']),
-#     color_mode=color_mode,
-#     batch_size=hparams['bs'],
-#     class_mode=None, seed=PARAMS['seed'])   # add shuffle=False if we want the iterator to go through the samples in a sequantial fashion
-# train_generator_Y = Y_datagen_trn.flow_from_directory(os.path.join(PARAMS['dirs']['data'], "trn", "Y"),
-#     target_size=(PARAMS['patch_size'], PARAMS['patch_size']),
-#     color_mode='grayscale',
-#     batch_size=hparams['bs'],
-#     class_mode=None, seed=PARAMS['seed'])   # class_mode to be set to None as we want the image to be yield
-# train_generator = zip(train_generator_X, train_generator_Y)
-#
-# val_generator_X = X_datagen_trn.flow_from_directory(os.path.join(PARAMS['dirs']['data'], "val", "X"),
-#                                                   target_size=(PARAMS['patch_size'], PARAMS['patch_size']),
-#                                                   color_mode=color_mode,
-#                                                   batch_size=PARAMS['batch_size_val'],
-#                                                   class_mode=None, seed=PARAMS['seed'])
-# val_generator_Y = Y_datagen_trn.flow_from_directory(os.path.join(PARAMS['dirs']['data'], "val", "Y"),
-#                                                   target_size=(PARAMS['patch_size'], PARAMS['patch_size']),
-#                                                   color_mode='grayscale',
-#                                                   batch_size=PARAMS['batch_size_val'],
-#                                                   class_mode=None, seed=PARAMS['seed'])
-# val_generator = zip(val_generator_X, val_generator_Y)
-
-# # Check generator to see if images in the batches make sense
-# nr_steps = 8
-# for ds in ['trn', 'val']:
-#     if ds == 'trn':
-#         generator = train_generator
-#     else:
-#         generator = val_generator
-#     for b in range(nr_steps):
-#         X_batch, Y_batch = next(generator)
-#         Y_batch_GT = np.argmax(Y_batch, axis=3) + 1
-#         # if (b == 0) or ((b+1) % 1991 == 0):
-#         nr_imgs = X_batch.shape[0]
-#         for i in range(nr_imgs):
-#             f, a = plt.subplots(1, 2)
-#             a[0].imshow(X_batch[i])
-#             a[0].set_title('X')
-#             a[1].imshow(np.squeeze(Y_batch_GT[i]), cmap=cmap, norm=norm)
-#             a[1].set_title('Y')
-#             plt.savefig(os.path.join(PARAMS['dirs']['fig'], 'checks', 'generators', '%s_batch%d_img%d.png' % (ds, b, i)))
-#             plt.close()

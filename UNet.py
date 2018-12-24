@@ -100,16 +100,6 @@ class UNet():
         conv9 = layers.Conv2D(32, (3, 3), activation='relu', padding='valid')(conv9)
         conv9 = layers.BatchNormalization(axis=-1, center=True, scale=True)(conv9)
 
-        # TODO TODEL No need to zero-pad here as we want to discard this border info as affected by noise
-        # ch, cw = self.get_crop_shape(inputs, conv9)
-        # conv9 = layers.ZeroPadding2D(padding=((ch[0], ch[1]), (cw[0], cw[1])))(conv9)
-
-        # TODO TODEL no difference in reshaping then softmaxing then re-reshaping back
-        # conv10 = layers.Conv2D(num_class, (1, 1))(conv9)
-        # x = layers.Reshape((conv10._keras_shape[1] * conv10._keras_shape[2], num_class))(conv10)
-        # x = layers.Activation('softmax')(x)
-        # output = layers.Reshape((conv10._keras_shape[1], conv10._keras_shape[2], num_class))(x)
-
         conv10 = layers.Conv2D(num_class, (1, 1), activation='softmax', name='output_layer')(conv9) # 'softmax' for multiclass case, to be combined with 'categorical_crossentropy'
 
         model = models.Model(inputs=inputs, outputs=conv10)
