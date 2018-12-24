@@ -68,10 +68,11 @@ PARAMS = {}
 # PARAMS['exp_name'] = r'basic_UNet_model'  # Experiment name, to create a separate folder with results, figures, Tensorboard logs, etc.
 PARAMS['exp_name'] = r'debugging'  # to avoid overwriting files in experiment folders
 
-# PARAMS['run_training'] = True   # if True trains model, if False loads saved model and goes to evalaution on test set
-PARAMS['run_training'] = False
+PARAMS['run_training'] = True   # if True trains model, if False loads saved model and goes to evalaution on test set
+# PARAMS['run_training'] = False
 
-PARAMS['subsetting'] = False   # subset datasets for testing purposes
+# PARAMS['subsetting'] = False   # subset datasets for testing purposes
+PARAMS['subsetting'] = True
 
 PARAMS['plot_figures'] = True
 # PARAMS['plot_figures'] = False
@@ -106,8 +107,8 @@ PARAMS['patience'] = 20  # number of epochs we tolerate the validation accuracy 
 # PARAMS['batch_size_trn'] = [4, 8, 16]
 PARAMS['batch_size_trn'] = [2]
 
-PARAMS['dropout'] = [0, 0.2, 0.4]   # dropout 0 means we keep all the units
-# PARAMS['dropout'] = [0.2]
+# PARAMS['dropout'] = [0, 0.2, 0.4]   # dropout 0 means we keep all the units
+PARAMS['dropout'] = [0.2]
 
 # PARAMS['learn_rate'] = [1e-4, 1e-5]     # 0.0001 usually gives the best results with Adam
 PARAMS['learn_rate'] = [1e-4]
